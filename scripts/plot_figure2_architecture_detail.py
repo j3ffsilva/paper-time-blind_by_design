@@ -79,7 +79,7 @@ VARIANT_LABELS = ["Standard", "Additive", "Token-Time", "Memory-Augmented"]
 FORMULAS = [
     "z<sub>i</sub> = e(w<sub>i</sub>) + p<sub>i</sub>",
     "z<sub>i</sub> = e(w<sub>i</sub>) + p<sub>i</sub> + τ(t)",
-    "z<sub>i</sub> = W[e(w<sub>i</sub>); τ(t)] + p<sub>i</sub>",
+    "z<sub>i</sub> = W·concat(e(w<sub>i</sub>), τ(t)) + p<sub>i</sub>",
     "z̃<sub>s</sub> = z<sub>s</sub> + g·(LN(z<sub>s</sub>+r<sub>s</sub>) − z<sub>s</sub>)",
 ]
 
@@ -230,16 +230,16 @@ def build_figure() -> go.Figure:
     box(fig, COL_CENTERS[1], ROWS["interact"],
         "Joint projection", "—", C["interaction"], absent=True)
     box(fig, COL_CENTERS[2], ROWS["interact"],
-        "Joint projection", "W[e(w<sub>i</sub>); τ(t)]",
+        "Joint projection", "W·concat(e(w<sub>i</sub>), τ(t))",
         C["interaction"], fill=C["new_fill"])
     box(fig, COL_CENTERS[3], ROWS["interact"],
-        "Joint projection", "W[e(w<sub>i</sub>); τ(t)]",
+        "Joint projection", "W·concat(e(w<sub>i</sub>), τ(t))",
         C["interaction"], fill=C["inter_fill"])
 
-    # ── Row: Causal memory ────────────────────────────────────────────────────
+    # ── Row: Past-period memory ───────────────────────────────────────────────
     for cx in COL_CENTERS[:3]:
         box(fig, cx, ROWS["mem_attn"],
-            "Causal memory", "—", C["memory"], absent=True)
+            "Past-period memory", "—", C["memory"], absent=True)
 
     # Memory-Augmented: two sub-boxes
     mem_cx  = COL_CENTERS[3] - MEM_OFFSET
@@ -248,7 +248,7 @@ def build_figure() -> go.Figure:
     y1_mem  = ROWS["mem_attn"] + BOX_H
 
     for cx_sub, title_sub, body_sub in [
-        (mem_cx,  "Past<br>prototypes",  "m(s,t′), t′&lt;t"),
+        (mem_cx,  "Past<br>vectors",  "m(s,t′), t′&lt;t"),
         (attn_cx, "History<br>gate",     "Attn + gate g"),
     ]:
         fig.add_shape(type="rect",
@@ -311,7 +311,7 @@ def build_figure() -> go.Figure:
     arrow(fig, cx2, y_bot("encoder"), cx2, y_top("output"),    C["encoder"])
 
     # Memory-Augmented: Lexical → Interact, Period → Interact,
-    #   Interact → Causal memory, Memory → Attention (horizontal), → Encoder → output
+    #   Interact → past-period memory, Memory → Attention (horizontal), → Encoder → output
     cx3 = COL_CENTERS[3]
     routed_arrow(fig, [
         (cx3, y_bot("token")),
@@ -321,10 +321,10 @@ def build_figure() -> go.Figure:
     ], C["token"])
     arrow(fig, cx3, y_bot("time"), cx3, y_top("interact"), C["time"])
     arrow(fig, cx3, y_bot("interact"), cx3, y_top("mem_attn"), C["interaction"])
-    # Prototype Memory → History Gate (horizontal)
+    # Past-period vectors → History Gate (horizontal)
     arrow(fig, mem_cx + HALF_W_TF, ROWS["mem_attn"],
                attn_cx - HALF_W_TF, ROWS["mem_attn"], C["memory"])
-    # Causal memory row → Encoder
+    # Past-period memory row → Encoder
     arrow(fig, cx3, y_bot("mem_attn"), cx3, y_top("encoder"),  C["memory"])
     arrow(fig, cx3, y_bot("encoder"),  cx3, y_top("output"),   C["encoder"])
 
@@ -362,7 +362,8 @@ def build_figure() -> go.Figure:
 
 
 def main() -> None:
-    pio.kaleido.scope.mathjax = None  # prevent "Loading[MathJax]" in exports
+    if pio.kaleido.scope is not None:
+        pio.kaleido.scope.mathjax = None  # prevent "Loading[MathJax]" in exports
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     fig = build_figure()

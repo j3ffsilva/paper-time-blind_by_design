@@ -1,0 +1,316 @@
+{
+  "seeds": [
+    2000,
+    2001,
+    2002,
+    2003,
+    2004,
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014
+  ],
+  "epochs": 30,
+  "by_seed": {
+    "2000": {
+      "Joint": {
+        "continuation_accuracy": 0.7380352644836272,
+        "sign_flip_rate": 0.7241379310344828
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7581863979848866,
+        "sign_flip_rate": 0.6896551724137931
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.7455919395465995,
+        "sign_flip_rate": 0.5517241379310345
+      }
+    },
+    "2001": {
+      "Joint": {
+        "continuation_accuracy": 0.7141057934508817,
+        "sign_flip_rate": 0.4482758620689655
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7468513853904282,
+        "sign_flip_rate": 0.7931034482758621
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.7581863979848866,
+        "sign_flip_rate": 0.8620689655172413
+      }
+    },
+    "2002": {
+      "Joint": {
+        "continuation_accuracy": 0.743073047858942,
+        "sign_flip_rate": 0.8275862068965517
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7241813602015114,
+        "sign_flip_rate": 0.7931034482758621
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.7027707808564232,
+        "sign_flip_rate": 0.6551724137931034
+      }
+    },
+    "2003": {
+      "Joint": {
+        "continuation_accuracy": 0.7418136020151134,
+        "sign_flip_rate": 0.7241379310344828
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7380352644836272,
+        "sign_flip_rate": 0.7586206896551724
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.72544080604534,
+        "sign_flip_rate": 0.8275862068965517
+      }
+    },
+    "2004": {
+      "Joint": {
+        "continuation_accuracy": 0.7619647355163728,
+        "sign_flip_rate": 0.8620689655172413
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7267002518891688,
+        "sign_flip_rate": 0.7586206896551724
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.7455919395465995,
+        "sign_flip_rate": 0.7931034482758621
+      }
+    },
+    "2005": {
+      "Joint": {
+        "continuation_accuracy": 0.7329974811083123,
+        "sign_flip_rate": 0.896551724137931
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7632241813602015,
+        "sign_flip_rate": 0.5862068965517241
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.7808564231738035,
+        "sign_flip_rate": 0.7241379310344828
+      }
+    },
+    "2006": {
+      "Joint": {
+        "continuation_accuracy": 0.756926952141058,
+        "sign_flip_rate": 0.5517241379310345
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7380352644836272,
+        "sign_flip_rate": 0.5862068965517241
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.7506297229219143,
+        "sign_flip_rate": 0.5862068965517241
+      }
+    },
+    "2007": {
+      "Joint": {
+        "continuation_accuracy": 0.7556675062972292,
+        "sign_flip_rate": 0.896551724137931
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7355163727959698,
+        "sign_flip_rate": 0.8275862068965517
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.7405541561712846,
+        "sign_flip_rate": 0.7931034482758621
+      }
+    },
+    "2008": {
+      "Joint": {
+        "continuation_accuracy": 0.7329974811083123,
+        "sign_flip_rate": 0.7931034482758621
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7632241813602015,
+        "sign_flip_rate": 0.3448275862068966
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.716624685138539,
+        "sign_flip_rate": 0.41379310344827586
+      }
+    },
+    "2009": {
+      "Joint": {
+        "continuation_accuracy": 0.7380352644836272,
+        "sign_flip_rate": 0.6896551724137931
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.72544080604534,
+        "sign_flip_rate": 0.9655172413793104
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.7040302267002518,
+        "sign_flip_rate": 0.9655172413793104
+      }
+    },
+    "2010": {
+      "Joint": {
+        "continuation_accuracy": 0.7065491183879093,
+        "sign_flip_rate": 0.5862068965517241
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7493702770780857,
+        "sign_flip_rate": 0.6551724137931034
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.7418136020151134,
+        "sign_flip_rate": 0.6896551724137931
+      }
+    },
+    "2011": {
+      "Joint": {
+        "continuation_accuracy": 0.7405541561712846,
+        "sign_flip_rate": 0.896551724137931
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.716624685138539,
+        "sign_flip_rate": 0.8275862068965517
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.6977329974811083,
+        "sign_flip_rate": 0.8275862068965517
+      }
+    },
+    "2012": {
+      "Joint": {
+        "continuation_accuracy": 0.7518891687657431,
+        "sign_flip_rate": 0.7931034482758621
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7632241813602015,
+        "sign_flip_rate": 0.896551724137931
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.7695214105793451,
+        "sign_flip_rate": 0.896551724137931
+      }
+    },
+    "2013": {
+      "Joint": {
+        "continuation_accuracy": 0.7632241813602015,
+        "sign_flip_rate": 0.5862068965517241
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7241813602015114,
+        "sign_flip_rate": 0.6896551724137931
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.72544080604534,
+        "sign_flip_rate": 0.5517241379310345
+      }
+    },
+    "2014": {
+      "Joint": {
+        "continuation_accuracy": 0.760705289672544,
+        "sign_flip_rate": 0.6206896551724138
+      },
+      "Timeformer_mean": {
+        "continuation_accuracy": 0.7556675062972292,
+        "sign_flip_rate": 0.8620689655172413
+      },
+      "Timeformer_multi": {
+        "continuation_accuracy": 0.7267002518891688,
+        "sign_flip_rate": 0.7931034482758621
+      }
+    }
+  },
+  "summary": {
+    "Joint": {
+      "continuation_accuracy": {
+        "n": 15,
+        "mean": 0.7425692695214106,
+        "sd": 0.016761245746490402,
+        "ci95_low": 0.7340869088380652,
+        "ci95_high": 0.751051630204756
+      },
+      "sign_flip_rate": {
+        "n": 15,
+        "mean": 0.7264367816091954,
+        "sd": 0.1424545598605027,
+        "ci95_low": 0.6543448275862069,
+        "ci95_high": 0.798528735632184
+      }
+    },
+    "Timeformer_mean": {
+      "continuation_accuracy": {
+        "n": 15,
+        "mean": 0.7418975650713686,
+        "sd": 0.016341395046073015,
+        "ci95_low": 0.7336276781580496,
+        "ci95_high": 0.7501674519846876
+      },
+      "sign_flip_rate": {
+        "n": 15,
+        "mean": 0.7356321839080461,
+        "sd": 0.15292108845574795,
+        "ci95_low": 0.6582434356019711,
+        "ci95_high": 0.8130209322141211
+      }
+    },
+    "Timeformer_multi": {
+      "continuation_accuracy": {
+        "n": 15,
+        "mean": 0.7354324097397146,
+        "sd": 0.024423725930584547,
+        "ci95_low": 0.7230722990589334,
+        "ci95_high": 0.7477925204204957
+      },
+      "sign_flip_rate": {
+        "n": 15,
+        "mean": 0.7287356321839079,
+        "sd": 0.15191807280131894,
+        "ci95_low": 0.6518544798334431,
+        "ci95_high": 0.8056167845343727
+      }
+    }
+  },
+  "comparisons": {
+    "continuation_accuracy__multi_minus_mean": {
+      "n": 15,
+      "mean_diff": -0.00646515533165409,
+      "ci95_low": -0.016986195180195524,
+      "ci95_high": 0.004055884516887345,
+      "t_stat": -1.3179665974342687,
+      "p": 0.2086739581102041
+    },
+    "continuation_accuracy__multi_minus_joint": {
+      "n": 15,
+      "mean_diff": -0.007136859781696063,
+      "ci95_low": -0.024238635974330243,
+      "ci95_high": 0.00996491641093812,
+      "t_stat": -0.8950556761414347,
+      "p": 0.38588761117506615
+    },
+    "sign_flip_rate__multi_minus_mean": {
+      "n": 15,
+      "mean_diff": -0.006896551724137927,
+      "ci95_low": -0.05322417986994793,
+      "ci95_high": 0.03943107642167208,
+      "t_stat": -0.31928317771660836,
+      "p": 0.7542260945293452
+    },
+    "sign_flip_rate__multi_minus_joint": {
+      "n": 15,
+      "mean_diff": 0.002298850574712641,
+      "ci95_low": -0.10892368357670996,
+      "ci95_high": 0.11352138472613525,
+      "t_stat": 0.04433044209767091,
+      "p": 0.9652671002717075
+    }
+  }
+}

@@ -273,19 +273,63 @@ def summarize_gaps(gaps: list[dict]) -> tuple[list[dict], list[dict]]:
 
     trend_rows = []
     for metric in sorted({g["metric"] for g in gaps}):
-        xs = np.array([g["noise"] for g in gaps if g["metric"] == metric], dtype=float)
-        ys = np.array([g["value"] for g in gaps if g["metric"] == metric], dtype=float)
-        if len(np.unique(xs)) >= 2:
-            slope, intercept, r, p, se = stats.linregress(xs, ys)
+        metric_gaps = [g for g in gaps if g["metric"] == metric]
+
+        # Primary inference: one slope per seed (regressed across its own
+        # fidelity levels), then a paired one-sample t-test on those slopes.
+        # Pooling all seed×fidelity rows into a single OLS (as before)
+        # pseudo-replicates repeated measures on the same seed and inflates
+        # degrees of freedom — each seed appears at every fidelity level, so
+        # observations are not independent.
+        by_seed: dict[int, list[tuple[float, float]]] = defaultdict(list)
+        for g in metric_gaps:
+            by_seed[g["seed"]].append((g["noise"], g["value"]))
+
+        seed_slopes = []
+        for seed, pts in sorted(by_seed.items()):
+            pts.sort()
+            xs_s = np.array([p[0] for p in pts], dtype=float)
+            ys_s = np.array([p[1] for p in pts], dtype=float)
+            if len(np.unique(xs_s)) >= 2:
+                s_seed, *_ = stats.linregress(xs_s, ys_s)
+                seed_slopes.append(s_seed)
+        seed_slopes = np.array(seed_slopes, dtype=float)
+
+        n = len(seed_slopes)
+        if n >= 2:
+            mean_slope = float(seed_slopes.mean())
+            sd = float(seed_slopes.std(ddof=1))
+            se = sd / math.sqrt(n)
+            t_stat, p_paired = stats.ttest_1samp(seed_slopes, 0.0)
+            ci_low = mean_slope - stats.t.ppf(0.975, n - 1) * se
+            ci_high = mean_slope + stats.t.ppf(0.975, n - 1) * se
+            dz = mean_slope / sd if sd > 0 else float("nan")
         else:
-            slope = intercept = r = p = se = float("nan")
+            mean_slope = sd = se = ci_low = ci_high = dz = float("nan")
+            t_stat, p_paired = float("nan"), float("nan")
+
+        # Pooled OLS kept for reference only (not the primary inference —
+        # see note above); point estimate matches the paired mean slope
+        # under this balanced design, but its p-value is not valid.
+        xs = np.array([g["noise"] for g in metric_gaps], dtype=float)
+        ys = np.array([g["value"] for g in metric_gaps], dtype=float)
+        if len(np.unique(xs)) >= 2:
+            pooled_slope, intercept, r, p_pooled, pooled_se = stats.linregress(xs, ys)
+        else:
+            pooled_slope = intercept = r = p_pooled = pooled_se = float("nan")
+
         trend_rows.append({
             "metric": metric,
-            "slope_vs_noise": float(slope),
-            "intercept": float(intercept),
-            "r": float(r),
-            "p_two_sided": float(p),
-            "slope_se": float(se),
+            "n_seeds": n,
+            "slope_vs_noise": mean_slope,
+            "slope_ci95_low": float(ci_low),
+            "slope_ci95_high": float(ci_high),
+            "slope_sd": sd,
+            "cohens_dz": float(dz),
+            "t_stat": float(t_stat),
+            "p_paired": float(p_paired),
+            "pooled_slope_vs_noise": float(pooled_slope),
+            "pooled_p_two_sided": float(p_pooled),
         })
     return summary, trend_rows
 
@@ -316,8 +360,15 @@ def write_markdown(summary: list[dict], trends: list[dict], path: Path) -> None:
         trend = next((t for t in trends if t["metric"] == metric), None)
         if trend:
             lines.append(
-                f"- slope vs noise: {trend['slope_vs_noise']:+.4f}, "
-                f"p={trend['p_two_sided']:.4g}"
+                f"- paired slope vs noise (n={trend['n_seeds']} seeds): "
+                f"{trend['slope_vs_noise']:+.4f} "
+                f"[{trend['slope_ci95_low']:+.4f}, {trend['slope_ci95_high']:+.4f}], "
+                f"dz={trend['cohens_dz']:.3f}, p={trend['p_paired']:.4g}"
+            )
+            lines.append(
+                f"- (pooled OLS, reference only — pseudo-replicated: "
+                f"slope={trend['pooled_slope_vs_noise']:+.4f}, "
+                f"p={trend['pooled_p_two_sided']:.4g})"
             )
         lines.append("")
     path.parent.mkdir(parents=True, exist_ok=True)
