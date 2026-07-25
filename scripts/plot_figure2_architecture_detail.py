@@ -80,7 +80,7 @@ FORMULAS = [
     "z<sub>i</sub> = e(w<sub>i</sub>) + p<sub>i</sub>",
     "z<sub>i</sub> = e(w<sub>i</sub>) + p<sub>i</sub> + τ(t)",
     "z<sub>i</sub> = W·concat(e(w<sub>i</sub>), τ(t)) + p<sub>i</sub>",
-    "z̃<sub>s</sub> = z<sub>s</sub> + g·(LN(z<sub>s</sub>+r<sub>s</sub>) − z<sub>s</sub>)",
+    "z̃<sub>s</sub> = z<sub>s</sub> + tanh(g)·(LN(z<sub>s</sub>+r<sub>s</sub>) − z<sub>s</sub>)",
 ]
 
 HEADER_COLORS = [C["muted"], C["time"], C["interaction"], C["memory"]]
@@ -208,32 +208,32 @@ def build_figure() -> go.Figure:
                            showarrow=False,
                            font={"size": 22, "color": hc}, align="center")
 
-    # ── Row: Lexical input (all variants) ─────────────────────────────────────
+    # ── Row: Token embedding (all variants) ───────────────────────────────────
     for cx in COL_CENTERS:
         box(fig, cx, ROWS["token"],
-            "Lexical input", "e(w<sub>i</sub>) + p<sub>i</sub>",
+            "Token embedding", "e(w<sub>i</sub>)",
             C["token"], fill=C["token_fill"])
 
-    # ── Row: Period code ──────────────────────────────────────────────────────
+    # ── Row: Period vector ────────────────────────────────────────────────────
     box(fig, COL_CENTERS[0], ROWS["time"],
-        "Period code", "—", C["time"], absent=True)
+        "Period vector", "—", C["time"], absent=True)
     box(fig, COL_CENTERS[1], ROWS["time"],
-        "Period code", "τ(t)", C["time"], fill=C["new_fill"])
+        "Period vector", "τ(t)", C["time"], fill=C["new_fill"])
     box(fig, COL_CENTERS[2], ROWS["time"],
-        "Period code", "τ(t)", C["time"], fill=C["time_fill"])
+        "Period vector", "τ(t)", C["time"], fill=C["time_fill"])
     box(fig, COL_CENTERS[3], ROWS["time"],
-        "Period code", "τ(t)", C["time"], fill=C["time_fill"])
+        "Period vector", "τ(t)", C["time"], fill=C["time_fill"])
 
-    # ── Row: Joint projection ─────────────────────────────────────────────────
+    # ── Row: Token--period projection ─────────────────────────────────────────
     box(fig, COL_CENTERS[0], ROWS["interact"],
-        "Joint projection", "—", C["interaction"], absent=True)
+        "Token-period projection", "—", C["interaction"], absent=True)
     box(fig, COL_CENTERS[1], ROWS["interact"],
-        "Joint projection", "—", C["interaction"], absent=True)
+        "Token-period projection", "—", C["interaction"], absent=True)
     box(fig, COL_CENTERS[2], ROWS["interact"],
-        "Joint projection", "W·concat(e(w<sub>i</sub>), τ(t))",
+        "Token-period projection", "W·concat(e(w<sub>i</sub>), τ(t))",
         C["interaction"], fill=C["new_fill"])
     box(fig, COL_CENTERS[3], ROWS["interact"],
-        "Joint projection", "W·concat(e(w<sub>i</sub>), τ(t))",
+        "Token-period projection", "W·concat(e(w<sub>i</sub>), τ(t))",
         C["interaction"], fill=C["inter_fill"])
 
     # ── Row: Past-period memory ───────────────────────────────────────────────
@@ -249,7 +249,7 @@ def build_figure() -> go.Figure:
 
     for cx_sub, title_sub, body_sub in [
         (mem_cx,  "Past<br>vectors",  "m(s,t′), t′&lt;t"),
-        (attn_cx, "History<br>gate",     "Attn + gate g"),
+        (attn_cx, "History<br>gate",     "Attn + tanh(g)"),
     ]:
         fig.add_shape(type="rect",
                       x0=cx_sub - HALF_W_TF, y0=y0_mem,
@@ -265,16 +265,16 @@ def build_figure() -> go.Figure:
                            showarrow=False,
                            font={"size": 19, "color": C["ink"]}, align="center")
 
-    # ── Row: Shared encoder (all variants) ────────────────────────────────────
+    # ── Row: Same encoder design (all variants) ───────────────────────────────
     for cx in COL_CENTERS:
         box(fig, cx, ROWS["encoder"],
-            "Shared encoder", "outputs h<sub>s</sub>",
+            "Same encoder design", "outputs h<sub>s</sub>",
             C["encoder"], fill=C["enc_fill"])
 
-    # ── Row: token@time output (all variants) ─────────────────────────────────
+    # ── Row: contextual subject output (all variants) ─────────────────────────
     for cx in COL_CENTERS:
         box(fig, cx, ROWS["output"],
-            "h<sub>s</sub>", "token@time",
+            "h<sub>s</sub>", "subject occurrence",
             C["output"], fill=C["out_fill"])
 
     # ── Arrows ────────────────────────────────────────────────────────────────
@@ -284,7 +284,7 @@ def build_figure() -> go.Figure:
     arrow(fig, cx0, y_bot("token"), cx0, y_top("encoder"), C["token"])
     arrow(fig, cx0, y_bot("encoder"), cx0, y_top("output"), C["encoder"])
 
-    # Additive: Lexical and period code reach the encoder through separate lanes.
+    # Additive: token embedding and period vector reach the encoder separately.
     cx1 = COL_CENTERS[1]
     routed_arrow(fig, [
         (cx1, y_bot("token")),
@@ -298,7 +298,7 @@ def build_figure() -> go.Figure:
           "add", C["time"], size=10)
     arrow(fig, cx1, y_bot("encoder"), cx1, y_top("output"), C["encoder"])
 
-    # Token-Time: lexical input bypasses the period box; both enter fusion separately.
+    # Token-Time: token embedding and period vector enter the projection separately.
     cx2 = COL_CENTERS[2]
     routed_arrow(fig, [
         (cx2, y_bot("token")),
