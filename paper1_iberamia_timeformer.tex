@@ -43,10 +43,9 @@ the movement of a word's neighbors relative to the non-temporal baseline.
 However, adding the same period vector to every token and combining each token
 with that vector produce equivalent average movement when nearby verbs and
 objects are reliable cues; a difference appears when those cues are degraded.
-Finally, averaged memory does not improve for bifurcating subjects, which
-approximate coexisting senses. Label-derived summaries help, but two
-unsupervised cluster centers do not; averaging alone therefore does not explain
-the limitation.
+Finally, memory ablations show that label-derived summaries improve
+continuation, whereas mean pooling and two \(k\)-means centers do not surpass
+Token-Time.
 
 \keywords{Temporal semantics \and Semantic change \and Transformer models \and Traceability \and Diagnostic evaluation}
 \end{abstract}
@@ -89,7 +88,6 @@ time-aware architectures. Additive gives every token the same period vector,
 Token-Time combines each token with that vector, and Memory-Augmented also
 summarizes earlier periods. We ask whether these designs improve temporal
 traceability over the non-temporal baseline and what each design contributes.
-Systematic evaluation on noisier regimes and natural corpora is left for future work.
 
 The paper makes four contributions. (1) We define temporal traceability as the
 ability to query an explicit word-at-period vector and test whether changes in
@@ -101,9 +99,8 @@ that all three time-aware architectures more than double the movement of
 drifting words relative to the non-temporal baseline. Additive and Token-Time
 produce equivalent average movement when contextual cues are reliable, while
 Token-Time performs better on the ambiguous classifier when they are not. (4)
-For bifurcating subjects, averaged memory does not improve over Token-Time.
-Label-derived summaries help, but two unsupervised cluster centers do not, so
-averaging alone does not explain the limitation.
+Memory ablations show that label-derived summaries improve continuation,
+whereas learned averages and two \(k\)-means centers do not surpass Token-Time.
 
 \section{Related Work}
 % Target length: under 1 page.
@@ -393,12 +390,11 @@ from \(t8\)--\(t9\).
 
 \section{Results}
 % Target length: 2.5--3.0 pages.
-We report means and 95\% confidence intervals over 31 training seeds.
-Giving the model a period more than doubles the change in the neighbors of
-drifting subjects: all three time-aware models reach
-\(\Delta\approx-0.56\), compared with \(-0.221\) for Standard. Additive and
-Token-Time produce nearly identical changes, and adding memory does not
-improve over Token-Time.
+We report means and 95\% confidence intervals over 31 training seeds. Period
+input creates the clearest separation across diagnostics; differences among the
+time-aware designs are smaller and condition-dependent. For drifting subjects,
+all three time-aware models reach \(\Delta\approx-0.56\), more than twice
+Standard's \(-0.221\).
 
 \subsection{Changes in Nearest Neighbors}
 % Main claim: temporal conditioning produces stronger neighborhood transitions than Standard.
@@ -409,13 +405,12 @@ Standard decreases by \(0.221\), with a 95\% CI of
 \([-0.240,-0.203]\). Token-Time decreases by \(0.563\), more than twice as
 much. Additive produces a similar decrease of \(0.567\).
 
-Stable subjects should not move toward either context, but the time-aware
-models also shift them toward \(N_2\), with \(\Delta\) between \(-0.150\) and
-\(-0.180\). This unwanted movement is much smaller than the change of about
-\(-0.56\) for drifting subjects, but suggests that the period signal affects
-all subjects. Bifurcating subjects fall between these cases: the time-aware
-models reach values near \(0.53\) at \(t9\), close to their predefined 50--50
-mixture.
+Stable subjects also shift toward \(N_2\), with \(\Delta\) between \(-0.150\)
+and \(-0.180\). This residual movement is about one-third of the change for
+drifting subjects (\(\Delta\approx-0.56\)), showing strong trajectory
+sensitivity but incomplete selectivity. Bifurcating subjects fall between these
+cases: the time-aware models reach values near \(0.53\) at \(t9\), close to
+their predefined 50--50 mixture.
 
 We used a paired equivalence test to determine whether the Additive and
 Token-Time scores are sufficiently close, rather than merely failing to find a
@@ -488,47 +483,39 @@ Mem-Aug. & $-$0.559 [$\pm$0.022] & 0.587 [$\pm$0.051] & 0.598 [$\pm$0.008] & 0.7
 
 \subsection{Classifier and Contrastive Diagnostics}
 The linear classifier reveals a difference that the drift score does not. In
-the standard condition, verbs and objects indicate the correct context 75\% of
-the time. All time-aware models outperform Standard
-(\(0.875\) [\(\pm\)0.005]): Additive reaches \(0.892\)
-[\(\pm\)0.003], while Token-Time and Memory-Augmented both reach \(0.881\)
-([\(\pm\)0.005] and [\(\pm\)0.006], respectively).
+the standard condition, all time-aware models score above Standard
+(\(0.875\)): Additive reaches \(0.892\), while Token-Time and
+Memory-Augmented both reach \(0.881\).
 
-The ordering changes in the ambiguous condition, where verbs and objects
-provide no reliable context clue. Standard reaches \(0.565\)
-\([\pm0.004]\), Additive \(0.579\) \([\pm0.005]\), Token-Time \(0.595\)
-\([\pm0.006]\), and Memory-Augmented \(0.598\) \([\pm0.008]\).
-Token-Time is 1.6 percentage points above Additive, and their 95\% confidence
-intervals do not overlap.
+The ordering changes when verbs and objects provide no reliable context clue:
+Standard reaches \(0.565\), Additive \(0.579\), Token-Time \(0.595\), and
+Memory-Augmented \(0.598\). Token-Time is 1.6 percentage points above
+Additive, and their 95\% confidence intervals do not overlap.
 
 Classifier accuracy cannot establish temporal traceability by itself: it tests
 whether the predefined context can be predicted, not whether changes in the
 word's neighbors follow changes in its use across periods.
 
-The contrastive test does not clearly separate the time-aware models. Additive reaches
-\(0.602\) \([\pm0.053]\), and Token-Time reaches \(0.624\)
-\([\pm0.048]\). Memory-Augmented reaches \(0.587\)
-\([\pm0.051]\). Their confidence intervals overlap. Standard scores
-\(0.000\) because it receives no period input.
+All time-aware models produce sign flips at rates from \(0.587\) to \(0.624\);
+Standard scores \(0.000\) without period input. Their confidence intervals
+overlap, so D3 does not distinguish among the temporal variants.
 
-In the continuation diagnostic, Additive and Token-Time again reach similar
-accuracy (\(0.746\) vs.\ \(0.748\)), while Standard reaches \(0.717\) and
-Memory-Augmented \(0.739\) (Table~\ref{tab:main-results}). Thus, Additive and
-Token-Time behave similarly in D2 and D4, but Token-Time performs better when
-the surrounding words provide no reliable context clue.
+In D4, all time-aware models score above Standard (\(0.717\)): Additive reaches
+\(0.746\), Token-Time \(0.748\), and Memory-Augmented \(0.739\)
+(Table~\ref{tab:main-results}). Additive and Token-Time thus behave similarly
+in D2 and D4; Token-Time's advantage appears only when contextual words are
+uninformative.
 
 \subsection{Memory Ablations}
 % Memory-Augmented: not a stable improvement over Token-Time; oracle diagnostic
 % localizes the limitation to mean-vector aggregation.
-The Memory-Augmented extension does not improve over Token-Time. Across 31
-seeds, its continuation accuracy is \(0.739\) \([\pm0.008]\). Token-Time
-reaches \(0.748\) \([\pm0.005]\). The paired difference is \(-0.009\)
-\([\pm0.010]\).
-Replacing the learned averages with label-derived vectors raises continuation
-accuracy to \(0.762\) \([\pm0.006]\). The oracle is \(0.013\) above
-Token-Time \([\pm0.009]\). Its sign-flip rate is \(0.694\)
-\([\pm0.118]\), \(0.070\) above Token-Time. This estimate has a wide
-confidence interval.
+Memory-Augmented remains above Standard on continuation (\(0.739\) vs.\
+\(0.717\)) but not Token-Time (\(0.748\)); the paired difference is \(-0.009\)
+\([\pm0.010]\). The oracle shows that the mechanism can use informative
+history: label-derived vectors raise continuation accuracy to \(0.762\)
+\([\pm0.006]\), \(0.013\) above Token-Time \([\pm0.009]\). Its sign-flip rate
+is \(0.694\) \([\pm0.118]\), \(0.070\) above Token-Time, although this estimate
+has a wide confidence interval.
 
 \begin{table}[!ht]
 \caption{Memory ablations (means, 31 seeds). Continuation (D4): accuracy of a
@@ -560,11 +547,11 @@ differences include zero.
 
 \section{Discussion and Conclusion}
 % Target length: 1.25--1.5 pages.
-The central result is twofold: temporal conditioning more than doubles neighbor
-movement for drifting subjects, yet a learned token--time interaction produces
-the same average movement as direct addition, and memory adds no reliable gain.
-Stable subjects also move toward \(N_2\), showing that the temporal signal is
-not fully selective.
+Temporal conditioning more than doubles neighbor movement for drifting
+subjects relative to Standard, and this movement is about three times the
+residual shift observed for stable subjects. Under reliable contextual cues,
+direct addition is as effective as a learned token--time interaction, making
+Additive the more parsimonious design in this setting.
 
 Additive and Token-Time are equivalent when verbs and objects provide reliable
 context clues (TOST, \(\delta=0.05\), \(p_\mathrm{TOST}<0.001\)). When those
@@ -583,11 +570,11 @@ is \(-0.019\) (95\% CI \([-0.105,+0.067]\), \(d_z=-0.12\), \(p=0.644\)).
 The ambiguous-condition result is therefore evidence for a specific condition,
 not general Token-Time superiority.
 
-Memory-Augmented does not improve over Token-Time. The oracle ablation shows
-that the existing attention and gate can use summaries built from the known
-\(N_1/N_2\) labels. However, replacing one average with two unsupervised
-\(k\)-means cluster centers does not improve performance. These ablations rule
-out a simple fix but do not isolate the remaining cause.
+The memory ablations further narrow the design space. The oracle shows that the
+existing attention and gate can exploit informative history, while neither one
+learned average nor two unsupervised \(k\)-means cluster centers surpass
+Token-Time. This suggests that the bottleneck lies in the information recovered
+by these unsupervised summaries, rather than in mean pooling alone.
 
 These results position the suite as a controlled architectural audit before
 evaluation on natural LSCD data. RuShiftEval, for example, follows the same
@@ -604,14 +591,14 @@ imperfectly annotated trajectories and account for open-ended polysemy,
 metaphor, register variation, frequency shifts, and genre differences, none of
 which the controlled SVO corpus reproduces.
 
-In this controlled setting, direct addition is sufficient to produce the same
-average neighbor movement as a learned token--time projection, while memory
-provides no reliable gain. More complex temporal conditioning therefore
-requires evidence from conditions in which local context is genuinely
-ambiguous. More broadly, period or context-label recovery is not enough:
-temporal traceability requires explicit word-at-period representations whose
-neighborhoods can be inspected across time and whose changes reflect changes in
-how the word is used.
+In this controlled setting, direct addition matches more complex temporal
+conditioning in average neighbor movement. Token-Time's localized advantage
+under ambiguity identifies where a learned interaction may matter, while the
+memory ablations show that useful history can help when its summary preserves
+the relevant distinction. More broadly, period or context-label recovery is not
+enough: temporal traceability requires explicit word-at-period representations
+whose neighborhoods can be inspected across time and whose changes reflect
+changes in how the word is used.
 
 % Bibliography
 \bibliographystyle{splncs04}
