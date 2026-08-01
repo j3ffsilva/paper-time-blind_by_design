@@ -17,7 +17,7 @@
 \title{Time-blind by Design: Diagnosing Temporal Traceability in Transformer Representations}
 \titlerunning{Time-blind by Design: Temporal Traceability in Transformer Representations}
 
-\author{Jefferson O. Silva\inst{1,2}}
+\author{Jefferson de Oliveira Silva\inst{1,2}}
 \authorrunning{J. O. Silva}
 
 \institute{Instituto de Tecnologia e Liderança, São Paulo, Brazil\\
@@ -50,84 +50,85 @@ later-period classification accuracy, whereas mean pooling and two
 
 \section{Introduction}
 
-Words do not preserve fixed meanings across time. In 1900, \emph{broadcast}
+Word meanings change over time. In 1900, \emph{broadcast}
 referred to scattering seeds across a field; today it describes a social media
 post reaching millions. Lexical semantic change detection (LSCD) usually learns
-vector representations from word co-occurrence in a separate corpus for each
-period and then compares them~\cite{schlechtweg2020semeval,tahmasebi2021survey}.
-This approach has produced important methods and benchmarks, but it summarizes
-change as one similarity score between separately trained models:
-\texttt{broadcast@1900} and \texttt{broadcast@2020} come from different models
-and become comparable only after their spaces are aligned, rather than being
-explicit queries to one model.
+a separate representation space for each period and aligns these spaces before
+comparing a word across time~\cite{schlechtweg2020semeval,tahmasebi2021survey}.
+These methods have produced important benchmarks and results, but usually
+summarize a target's change as a similarity score. Thus,
+the 1900 and 2020 representations of \emph{broadcast} come from separate,
+aligned spaces rather than from period-specific queries to one model.
 
-We call contextual representations \emph{temporally traceable} when
-representations of the same word conditioned on requested periods are directly
-comparable and changes in their nearest-neighbor composition reflect changes in
-how the word is used.
+We call contextual representations \emph{temporally traceable} when they satisfy
+two conditions: representations of the same word at different periods are
+directly comparable, and their nearest neighbors change as the word's use
+changes.
 Consider \emph{gay}, which in the early twentieth century was mainly associated
 with \emph{cheerful} and \emph{merry}, and by the late twentieth century with
-\emph{queer} and \emph{lesbian}~\cite{hamilton2016diachronic}. Comparable
-representations can support socially relevant questions, including whether a
-word moved toward or away from stigmatized terms. Answering such questions
-requires directly comparable representations of uses of \emph{gay} conditioned
-on 1920 and 1980.
+\emph{queer} and \emph{lesbian}~\cite{hamilton2016diachronic}. A traceable model
+should therefore place uses of \emph{gay} from 1920 closer to contexts associated
+with \emph{cheerful} and \emph{merry}, and uses from 1980 closer to contexts
+associated with \emph{queer} and \emph{lesbian}. Such comparisons can support
+socially relevant analyses, including whether a word moved toward or away from
+stigmatized terms.
 
-In this study, we test temporal traceability in a controlled environment where
-the usage trajectory is predefined. In natural corpora, an apparent change may instead
-reflect differences in word frequency, genre, or corpus composition. It is
-therefore difficult to tell whether a change in the learned representations
-comes from the model architecture or the data. We introduce a corpus in which
-subjects follow predefined stable, drifting, or bifurcating usage trajectories.
-Four diagnostics distinguish changes in neighborhood composition, recovery of
-the generating group, sensitivity to the period, and transfer to later periods.
+In our controlled corpus, we specify in advance how often each subject appears
+with each of two context groups across ten periods. These schedules define
+stable, drifting, and bifurcating usage trajectories. This control lets us test
+whether a representational change comes from the architecture rather than from
+uncontrolled differences in word frequency, genre, or corpus composition. Four
+diagnostics test whether representations recover the context group that
+generated a sentence, whether their neighborhoods follow the predefined
+trajectory, whether changing only the period changes a prediction, and whether
+they transfer to later periods.
 
-Against this suite we evaluate one non-temporal baseline (Standard) and three
+With this suite we evaluate one non-temporal baseline (Standard) and three
 time-aware architectures. Additive adds the same period vector at every
-position. Token-Time instead projects each token--period pair, and
-Memory-Augmented also summarizes earlier periods. We ask whether these designs
-improve temporal traceability and what each contributes.
+position. Token-Time instead learns a projection that combines each token with
+the period before the encoder. Memory-Augmented also lets the subject input
+consult summaries from earlier periods. We test whether these designs improve
+temporal traceability and which design choices matter.
 
 The paper makes four contributions. (1) We define temporal traceability through
 changes in the neighborhoods of comparable, period-conditioned contextual
 representations. (2) We introduce a controlled corpus with three usage
 trajectories and four diagnostics that separate neighborhood composition from
 label prediction. (3) We show that all time-aware architectures more than
-double the change for drifting subjects; Additive and Token-Time are equivalent
-with reliable cues, while Token-Time performs better when they are
-uninformative. (4) Memory ablations show that label-derived history improves
-later-period classification, whereas representation-derived means and two
-\(k\)-means centers do not surpass Token-Time.
+double the neighborhood shift for drifting subjects; Additive and Token-Time
+are equivalent with reliable cues, while Token-Time has a small classifier
+advantage when they are fully uninformative. (4) Memory ablations show that an
+oracle memory built from generating-group labels improves later-period
+classification, whereas representation-derived means and two \(k\)-means
+centers do not surpass Token-Time.
 
 \section{Related Work}
 % Target length: under 1 page.
-Lexical semantic change detection (LSCD) is the dominant computational framing
-for meaning shift. Diachronic word embeddings~\cite{hamilton2016diachronic}
+Most computational studies of meaning change use lexical semantic change
+detection (LSCD). Diachronic word embeddings~\cite{hamilton2016diachronic}
 learn one vector space per time slice, align the separately trained spaces, and
-measure how a word's neighbors change. We share the view that meaning change
-should alter these neighbors, but use a different architecture: LSCD produces a
-score comparing two spaces rather than period-conditioned contextual
-representations from one model. Standard benchmarks formalize this
-task~\cite{schlechtweg2020semeval,tahmasebi2021survey}, but changes in frequency
-and genre can also affect their scores; Spanish shared tasks show that manual
-annotation is required even for modern corpora~\cite{zamora2022lscdiscovery}.
-Our controlled corpus makes each usage trajectory known, allowing differences to
-be attributed to model design rather than corpus composition.
+track changes in a word's neighbors. Our approach instead obtains
+period-conditioned contextual representations from one model rather than
+comparing period-specific spaces.
+Standard benchmarks evaluate LSCD~\cite{schlechtweg2020semeval,tahmasebi2021survey}.
+Natural-corpus scores may reflect shifts in frequency or genre, and benchmark
+construction requires manual annotation even for modern
+corpora~\cite{zamora2022lscdiscovery}. In our controlled corpus, we set
+trajectories in advance, so corpus composition is fixed across architectures.
 
-Temporal neural language models avoid separate spaces by conditioning one model
-on time. Prior work uses timestamps for knowledge-intensive QA, masked language
+Temporal neural language models instead condition one model on time. Prior work
+uses timestamps for knowledge-intensive QA, masked language
 modeling, or period-stratified downstream
 evaluation~\cite{dhingra2022timeaware,rosin2022timemasking,loureiro2022timelms}.
-These results show that providing time can improve predictions for the requested
-period, but do not test whether the neighborhoods of period-conditioned word
-representations can be inspected and compared directly.
+These studies show that time conditioning can improve period-appropriate
+predictions, but do not test whether the same word's neighborhoods match each
+period within one model.
 
-Finally, semantic change may involve bifurcation rather than monotonic drift.
-Giulianelli et al.\ show that words can develop coexisting
-senses~\cite{giulianelli2020analysing}; a mean-pooled summary can blur their
-distinction by falling between them. Our stable, drifting, and bifurcating
-trajectories test whether one mean summary per subject and period is adequate,
-and the memory ablations examine alternatives.
+Finally, words can develop new senses that coexist with older
+ones~\cite{giulianelli2020analysing}. Averaging representations of two senses may
+produce a vector that represents neither one. Our bifurcating trajectories test
+whether a mean summary preserves this structure; the memory ablations compare
+alternatives.
 
 \section{Controlled Diagnostic Suite}
 % Target length: 1.0 page.
@@ -135,17 +136,16 @@ We construct a corpus of subject--verb--object (SVO) sentences spanning ten
 periods. Every sentence consists of one subject, one verb, and one object. We
 divide the 8 verbs and 8 objects
 into two groups, $N_1$ and $N_2$, which provide distinct contextual cues:
-$N_1$ uses
-\(\{V1,\ldots,V4\}\) and \(\{O1,\ldots,O4\}\); $N_2$ uses
-\(\{V5,\ldots,V8\}\) and \(\{O5,\ldots,O8\}\). A sentence generated from
-$N_1$ therefore looks like \texttt{S5 V2 O3}, while one from $N_2$
-looks like \texttt{S5 V6 O8}; the subject token is the same in both cases, but
-its co-occurring words differ. For each of the 30 subjects,
-\(P(N_1 \mid s, t)\) is the probability that a sentence containing subject
-\(s\) at period \(t\) is drawn from $N_1$; its evolution from \(t0\) through
-\(t9\) defines the subject's predefined trajectory.
+we assign \(\{V1,\ldots,V4\}\) and \(\{O1,\ldots,O4\}\) as the canonical
+vocabulary of $N_1$, and \(\{V5,\ldots,V8\}\) and \(\{O5,\ldots,O8\}\) as that
+of $N_2$. Without cue noise, an $N_1$ sentence looks like
+\texttt{S5 V2 O3}, while an $N_2$ sentence looks like \texttt{S5 V6 O8}; the
+subject token is the same in both cases, but its co-occurring words differ. For
+each subject $s$ and period $t$, \(P(N_1 \mid s,t)\) is the probability of
+selecting $N_1$ as the generating group. The ten probabilities from \(t0\) to
+\(t9\) define the subject's trajectory.
 
-\begin{figure}[t]
+\begin{figure}[!h]
 \centering
 \includegraphics[width=\textwidth]{outputs/figures/figure1_benchmark_design.pdf}
 \caption{Controlled diagnostic suite overview. \emph{Left}: SVO sentences for a drifting
@@ -162,38 +162,35 @@ Figure~\ref{fig:benchmark-design} (center) shows the three predefined trajectory
 classes. Stable subjects maintain an approximately constant \(P(N_1 \mid s, t)\)
 throughout. Drift subjects follow a monotonic trajectory from near-exclusive
 $N_1$ (\(P(N_1 \mid s, t) \approx 1\) at \(t0\)) to near-exclusive $N_2$
-(\(P(N_1 \mid s, t) \approx 0\) at \(t9\)): a drifting subject that appears in
-sentences like \texttt{S5 V2 O3} early on will appear in sentences like
-\texttt{S5 V6 O8} by the final period. Bifurcating subjects begin in $N_1$
+(\(P(N_1 \mid s, t) \approx 0\) at \(t9\)). A drifting subject is therefore more
+likely to appear in sentences such as \texttt{S5 V2 O3} early on and
+\texttt{S5 V6 O8} near the final period. Bifurcating subjects begin in $N_1$
 and move toward a mixed state (\(P(N_1 \mid s, t) \approx 0.5\)) where sentences
 are generated from both groups with equal probability, approximating two coexisting senses. The
 suite contains 10 subjects per class.
 
-Each verb and object is drawn from the group opposite to the sentence's
-generating group 25\% of the time (Figure~\ref{fig:benchmark-design}, left).
-The accompanying words are therefore informative but imperfect cues; subject
-identity and period provide the prior \(P(N_1\mid s,t)\), while the generating
-group of each sentence remains stochastic. The \texttt{true\_context} field
-records this generating group. It is not used in MLM training and is available
-only to the diagnostics.
+To generate a sentence for subject $s$ at period $t$, we first sample $N_1$ or
+$N_2$ according to \(P(N_1\mid s,t)\). We store the sampled group as
+\texttt{true\_context}. We then draw the verb and object independently: each
+comes from the sampled group with 75\% probability and from the opposite group
+with 25\% probability (Figure~\ref{fig:benchmark-design}, left). The accompanying
+words are therefore informative but imperfect cues. \texttt{true\_context} is
+not used in MLM training and is available only to the diagnostics.
 
-This design separates differences caused by the architecture from differences
-in frequency, genre, or corpus composition. Because \(P(N_1 \mid s,t)\) is
-known, we can test whether the composition of representation neighborhoods
-follows the process that generated the corpus. The scope of these controlled diagnostics is revisited in
-the Discussion.
+All architectures use the same corpus and known trajectories, so differences
+between them cannot result from frequency, genre, or corpus composition. Because
+\(P(N_1 \mid s,t)\) is known, we can test whether representation neighborhoods
+follow the process that generated the corpus. The Discussion explains how these
+diagnostics would need to change for natural corpora.
 
-The experiments use four evaluation settings. The standard and ambiguous cue
-conditions vary the reliability of the accompanying words. In the standard cue
-condition, after $N_1$ or $N_2$ is selected to generate a sentence, each verb
-and object is drawn from that same group with 75\% probability, matching the
-distribution used for masked language modeling (MLM) training. In the
-ambiguous cue condition, this probability is reduced to 50\%, so the verb and
-object do not reveal which group generated the sentence on average. The
-contrastive set presents the same masked-verb subject--object frame with
-two period identifiers and measures whether changing only the period changes the
-preferred generating group. The later-period transfer set contains periods \(t8\)--\(t9\),
-which are excluded from MLM training on \(t0\)--\(t7\).
+The experiments use four evaluation settings. The standard cue setting uses the
+75\% cue reliability described above and matches masked language modeling (MLM)
+training. The ambiguous cue setting reduces this probability to 50\%, so verbs
+and objects do not identify the generating group on average. The contrastive set
+presents the same masked-verb subject--object frame with two period identifiers
+and tests whether changing only the period changes the preferred group. The
+later-period transfer set contains \(t8\)--\(t9\), which are excluded from MLM
+training on \(t0\)--\(t7\).
 
 \section{Time-Aware Architectures}
 % Target length: 2.0 pages.
@@ -497,6 +494,9 @@ The ordering changes when verbs and objects provide no reliable contextual cue:
 Standard reaches \(0.565\), Additive \(0.579\), Token-Time \(0.595\), and
 Memory-Augmented \(0.598\). Token-Time is 1.6 percentage points above
 Additive, and their 95\% confidence intervals do not overlap.
+Such a probe-specific gain may matter at scale when ambiguous cases are frequent
+or errors costly, but no downstream benefit is demonstrated; it does not alone
+justify the more complex architecture.
 
 Classifier accuracy cannot establish temporal traceability by itself: it tests
 whether the generating group can be predicted, not whether the composition of
@@ -561,11 +561,12 @@ interaction, making Additive the more parsimonious design in this setting.
 Additive and Token-Time are equivalent when verbs and objects provide reliable
 contextual cues (TOST, \(\delta=0.05\), \(p_\mathrm{TOST}<0.001\)). When those
 words provide no reliable cue, the classifier gives Token-Time a small
-advantage over Additive (\(0.595\) vs.\ \(0.579\)). The layer-wise CKA
-comparison tells a complementary story: Additive--Token-Time similarity rises
-from 0.726 at the input to 0.887 after the encoder. Their overall
-representation patterns become more similar with depth, while the ambiguous
-condition still reveals a classifier difference.
+advantage over Additive (\(0.595\) vs.\ \(0.579\)). Layer-wise CKA shows that
+temporal variants converge with depth: Additive--Token-Time rises from 0.726 to
+0.887 and Token-Time--Memory-Augmented from 0.679 to 0.798. Conversely,
+Standard's similarity to Additive and Token-Time falls from about 0.44 to 0.22.
+Thus, fusion differences partly dissipate, whereas separation from the
+non-temporal model persists.
 
 If ambiguity systematically favored Token-Time, its advantage should grow as
 contextual cues become less reliable. The 15-seed noise sweep does not show
@@ -581,21 +582,18 @@ representation-derived mean nor two unsupervised \(k\)-means cluster centers sur
 Token-Time. This suggests that the bottleneck lies in the information recovered
 by these unsupervised summaries, rather than in mean pooling alone.
 
-These results position the suite as a controlled architectural audit before
-evaluation on natural LSCD data. RuShiftEval, for example, follows the same
-words across three periods and includes change followed by stability as well
-as continuous change~\cite{kutuzov2021rushifteval}. With annotated targets,
-stable words can serve as negative controls, while gradual change and the gain
-or coexistence of senses provide approximate counterparts to our drifting and
-bifurcating trajectories.
-
-A natural-corpus study can test whether Additive and Token-Time remain
-equivalent in neighborhood composition when local contexts identify the current
-sense and whether Token-Time gains an advantage for more ambiguous usages. Such
-a study must adapt the diagnostics to
-imperfectly annotated trajectories and account for open-ended polysemy,
-metaphor, register variation, frequency shifts, and genre differences, none of
-which the controlled SVO corpus reproduces.
+The SVO process captures directional replacement and simplified gain or
+coexistence of two senses, but not open-ended polysemy, metaphor, register
+variation, frequency shifts, or genre differences. Transfer to natural LSCD
+data is diagnostic-specific. D1 requires occurrence-level usage labels, absent
+from aggregate word-level change scores. D2 can measure neighborhood change
+but, without a known \(P(N_1\mid s,t)\), requires comparison with annotated
+sense distributions or human scores. D3 requires counterfactual pairs holding
+lexical context fixed, which standard benchmarks do not provide. D4 requires
+earlier training periods and a separate future period, so it does not transfer
+as defined to two-period benchmarks. RuShiftEval's three periods permit an
+approximation~\cite{kutuzov2021rushifteval}, but the full battery would still
+require a new, separately validated protocol.
 
 In this controlled setting, direct addition matches more complex temporal
 conditioning in average changes to neighborhood composition. Token-Time's localized advantage
